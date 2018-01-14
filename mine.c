@@ -1,10 +1,19 @@
 #include<stdlib.h>
 #include<stdio.h>
+#include<time.h>
 
 #include "matrix_functions.h"
+#include "keyboard_input.h"
+#include "kbhit.h"
 
 #define DARSTELLUNG_MINE 77 /* Der char "M" */
 #define DARSTELLUNG_LEER 48 /* Der char "0" */
+
+typedef struct Cursor {
+        unsigned short int x;
+        unsigned short int y;
+
+    } Cursor;
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
@@ -13,6 +22,7 @@ int main(int argc, char *argv[]) {
     }
 
     _Bool GameOver = 0;
+    _Bool redrawScreen = 1;
     int rows, cols, mines, i;
     int **sichtbaresFeld;
     int **minenFeld;
@@ -23,8 +33,11 @@ int main(int argc, char *argv[]) {
     cols = atoi(argv[2]);
     mines = atoi(argv[3]);
 
-    int nutzereingabe1;
-    int nutzereingabe2;
+    Cursor cursor;
+    cursor.x = cols / 2 + 1;
+    cursor.y = rows / 2;
+
+    init_keyboard();
 
     /* allocate the arrays */
     sichtbaresFeld = malloc(rows * sizeof *sichtbaresFeld);
@@ -42,33 +55,58 @@ int main(int argc, char *argv[]) {
     populate_matrix(minenFeld, rows, cols, mines);
 
     while (GameOver == 0) {
-        printf("%c[2J", 27);
-        /* print the array */
-        printf("Sichtbares Feld:\n");
-        print_matrix(sichtbaresFeld, rows, cols);
-        if (argc > 4) {
-            printf("Minenfeld:\n");
-            print_matrix(minenFeld, rows, cols);
+        /* clears the screen */
+        if (redrawScreen == 1) {
+            printf("%c[2J", 27);
+            /* print the array */
+            print_matrix(sichtbaresFeld, rows, cols);
+            if (argc > 4) {
+                printf("Minenfeld:\n");
+                print_matrix(minenFeld, rows, cols);
+            }
+            printf("\nCursor:\nx: %d\ny: %d", cursor.x, cursor.y);
         }
+        redrawScreen = 0;
 
-        do {
-            printf("Coordinates where you want to check (row column): ");
-            scanf("%d %d", &nutzereingabe1, &nutzereingabe2);
-        } while (nutzereingabe1 >= rows || nutzereingabe2 >= cols);
+        /* place cursor after drawing playing field */
+        move_Cursor(cursor.y, cursor.x * 2);
 
-        if (check_matrixField(minenFeld, nutzereingabe1, nutzereingabe2) == DARSTELLUNG_MINE) {
-            GameOver = 1;
-        } else if (check_matrixField(sichtbaresFeld, nutzereingabe1, nutzereingabe2) != DARSTELLUNG_LEER) {
-            printf("You've already checked this field!");
-        } else if (check_matrixField(minenFeld, nutzereingabe1, nutzereingabe2) != 48) {
-            change_matrix(sichtbaresFeld, nutzereingabe1, nutzereingabe2, check_matrixField(minenFeld, nutzereingabe1, nutzereingabe2));
-        } else {
-            reveal_sichtbaresFeld(sichtbaresFeld, minenFeld, rows, cols, nutzereingabe1, nutzereingabe2);
-        }
+        /*while (1) { */
+            char c = 0;
+            int countToThree = 0;
+
+            c = getchar();
+            if (c == 27 && getchar() == 91) {
+                c = getchar();
+                switch (c) {
+                    case 65: cursor.y--; break;
+                    case 66: cursor.y++; break;
+                    case 67: cursor.x++; break;
+                    case 68: cursor.x--; break;
+                    default: printf("FEHLEINGABE !\n"); break;
+                }
+            } else if (c == 32) {
+                if (check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1) == DARSTELLUNG_MINE) {
+                    GameOver = 1;
+                } else if (check_matrixField(sichtbaresFeld, cursor.y - 1, cursor.x - 1) != DARSTELLUNG_LEER) {
+                    printf("You've already checked this field!");
+                } else if (check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1) != 48) {
+                    change_matrix(sichtbaresFeld, cursor.y - 1, cursor.x - 1, check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1));
+                } else {
+                    reveal_sichtbaresFeld(sichtbaresFeld, minenFeld, rows, cols, cursor.y - 1, cursor.x - 1);
+                }
+                redrawScreen = 1;
+            } else {
+                printf("FEHLEINGABE !\n");
+            }
     }
 
-    printf("GAME OVER! You hit a mine!\n");
+    /* clears the screen */
+    printf("%c[2J", 27);
     print_matrix(minenFeld, rows, cols);
+    printf("GAME OVER! You hit a mine!\n");
+
+    close_keyboard();
 
     /* deallocate the array */
     for (i = 0; i < rows; i++) {

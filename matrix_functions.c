@@ -1,5 +1,6 @@
-#include<time.h> /* only needed for the shitty RNG, maybe replace later */
 #include<stdio.h>
+#include<stdlib.h>  /* only needed for RAND */
+#include<time.h> /* only needed for the shitty RNG, maybe replace later */
 #include "matrix_functions.h"
 
 #define DARSTELLUNG_MINE 77 /* Der char "M" */
@@ -53,6 +54,22 @@ void populate_matrix(int** array, int rows, int cols, int mines) {
 }
 
 void print_matrix(int** array, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (array[i][j] == 77) {
+                printf("%c[31m%c%c[0m ", 27, array[i][j], 27);
+            } else if (array[i][j] == 48) {
+                printf("+ ");
+            } else {
+                printf("%c ", array[i][j]);
+            }
+        }
+        printf("|\n");
+    }
+}
+
+/* UNUSED NOW */
+void print_matrix_with_border(int** array, int rows, int cols) {
     printf("    ");
 
     for (int i = 0; i < cols; i++) {
@@ -88,7 +105,6 @@ int check_matrixField(int** array, int row, int col) {
 }
 
 void reveal_sichtbaresFeld(int** array, int** minenfeld, int rows, int cols, int x, int y) {
-
     if (minenfeld[x][y] != 48) {
         array[x][y] = minenfeld[x][y];
     } else {
