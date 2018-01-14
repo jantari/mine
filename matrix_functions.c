@@ -19,49 +19,48 @@ int get_int_len (int value){
 }
 
 /* Syntax: populate_matrix(matrixHier, anzahlReihen, anzahlSpalten, anzahlMinen) */
-void populate_matrix(int** array, int rows, int cols, int mines) {
+void populate_matrix(Minefield m) {
     int i, j;
 
-    for (i = 0; i < rows; i++) {
-        for (j = 0; j < cols; j++) {
-            array[i][j] = 48;
+    for (i = 0; i < m.rows; i++) {
+        for (j = 0; j < m.columns; j++) {
+            m.field[i][j] = 48;
         }
     }
 
     /* placing mines and numbers in playing field */
-    for (int minesPlaced = 0; minesPlaced < mines;) {
-        int randomRow = rand() % rows;
-        int randomCol = rand() % cols;
+    for (int minesPlaced = 0; minesPlaced < m.mines;) {
+        int randomRow = rand() % m.rows;
+        int randomCol = rand() % m.columns;
         /* printf("Cell randomly selected: X: %d Y: %d\n", randomRow, randomCol); */
-        if (array[randomRow][randomCol] != DARSTELLUNG_MINE) {
-            array[randomRow][randomCol] = DARSTELLUNG_MINE;
+        if (m.field[randomRow][randomCol] != DARSTELLUNG_MINE) {
+            m.field[randomRow][randomCol] = DARSTELLUNG_MINE;
             /* Zahlen hinzufuegen wieviele Minen in der naehe sind */
             for (int startRow = randomRow - 1; startRow <= randomRow + 1; startRow++) {
                 for (int startCol = randomCol - 1; startCol <= randomCol + 1; startCol++) {
                     /* Check ob der Bereich noch im Spielfeld ist (falls Mine am Rand ist) */
-                    if (startRow < rows && startRow >= 0 && startCol < cols && startCol >= 0) {
+                    if (startRow < m.rows && startRow >= 0 && startCol < m.columns && startCol >= 0) {
                         /* Check ob Feld bereits mine ist, wenn ja ueberspringen */
-                        if (array[startRow][startCol] != DARSTELLUNG_MINE) {
-                            array[startRow][startCol]++;
+                        if (m.field[startRow][startCol] != DARSTELLUNG_MINE) {
+                            m.field[startRow][startCol]++;
                         }
                     }
                 }
             }
             minesPlaced++;
         }
-    }
-    
+    }   
 }
 
-void print_matrix(int** array, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (array[i][j] == 77) {
-                printf("%c[31m%c%c[0m ", 27, array[i][j], 27);
-            } else if (array[i][j] == 48) {
+void print_matrix(Minefield m) {
+    for (int i = 0; i < m.rows; i++) {
+        for (int j = 0; j < m.columns; j++) {
+            if (m.field[i][j] == 77) {
+                printf("%c[31m%c%c[0m ", 27, m.field[i][j], 27);
+            } else if (m.field[i][j] == 48) {
                 printf("+ ");
             } else {
-                printf("%c ", array[i][j]);
+                printf("%c ", m.field[i][j]);
             }
         }
         printf("|\n");
@@ -69,25 +68,24 @@ void print_matrix(int** array, int rows, int cols) {
 }
 
 /* UNUSED NOW */
-void print_matrix_with_border(int** array, int rows, int cols) {
+void print_matrix_with_border(Minefield m) {
     printf("    ");
-
-    for (int i = 0; i < cols; i++) {
+    for (int i = 0; i < m.columns; i++) {
         printf("_%c[4m%d%c[0m", 27, i, 27);
     }
     printf("_\n");
-    for (int i = 0; i < rows; i++) {
-        for (int padding = 0; padding + get_int_len(i) < get_int_len(rows); padding++) {
+    for (int i = 0; i < m.rows; i++) {
+        for (int padding = 0; padding + get_int_len(i) < get_int_len(m.rows); padding++) {
             printf(" ");
         }
         printf("%d | ", i);
-        for (int j = 0; j < cols; j++) {
-            if (array[i][j] == 77) {
-                printf("%c[31m%c%c[0m ", 27, array[i][j], 27);
-            } else if (array[i][j] == 48) {
+        for (int j = 0; j < m.columns; j++) {
+            if (m.field[i][j] == 77) {
+                printf("%c[31m%c%c[0m ", 27, m.field[i][j], 27);
+            } else if (m.field[i][j] == 48) {
                 printf("+ ");
             } else {
-                printf("%c ", array[i][j]);
+                printf("%c ", m.field[i][j]);
             }
         }
         printf("|\n");
@@ -95,41 +93,40 @@ void print_matrix_with_border(int** array, int rows, int cols) {
 }
 
 
-void change_matrix(int** array, int change_row, int change_col, int newValue) {
-    array[change_row][change_col] = newValue;
+void change_matrix(Minefield m, int change_row, int change_col, int newValue) {
+    m.field[change_row][change_col] = newValue;
 }
 
 
-int check_matrixField(int** array, int row, int col) {
-    return array[row][col];
+int check_matrixField(Minefield m, int row, int col) {
+    return m.field[row][col];
 }
 
-void reveal_sichtbaresFeld(int** array, int** minenfeld, int rows, int cols, int x, int y) {
-    if (minenfeld[x][y] != 48) {
-        array[x][y] = minenfeld[x][y];
+void reveal_sichtbaresFeld(Minefield sichtbar, Minefield minenfeld, int x, int y) {
+    if (minenfeld.field[x][y] != 48) {
+        sichtbar.field[x][y] = minenfeld.field[x][y];
     } else {
-        array[x][y] = 32;
+        sichtbar.field[x][y] = 32;
 
         if (REVEAL_ADJACENT_ZEROS == 1) {
-
-        for (int startRow = x - 1; startRow <= x + 1; startRow++) {
-            if (DEBUG_OUTPUT == 1) { printf("\nStartRow: %d", startRow); }
-            for (int startCol = y - 1; startCol <= y + 1; startCol++) {
-                if (DEBUG_OUTPUT == 1) { printf("\nStartRow: %d, StartCol: %d", startRow, startCol); }
-                /* Check ob der Bereich noch im Spielfeld ist (falls Mine am Rand ist) */
-                if (startRow < rows && startRow >= 0 && startCol < cols && startCol >= 0) {
-                    /* Check ob Feld bereits mine ist, wenn ja ueberspringen */
-                    if (DEBUG_OUTPUT == 1) { printf(" - checked"); }
-                        if (array[startRow][startCol] != 32) {
+            for (int startRow = x - 1; startRow <= x + 1; startRow++) {
+                if (DEBUG_OUTPUT == 1) { printf("\nStartRow: %d", startRow); }
+                for (int startCol = y - 1; startCol <= y + 1; startCol++) {
+                    if (DEBUG_OUTPUT == 1) { printf("\nStartRow: %d, StartCol: %d", startRow, startCol); }
+                    /* Check ob der Bereich noch im Spielfeld ist (falls Mine am Rand ist) */
+                    if (startRow < sichtbar.rows && startRow >= 0 && startCol < sichtbar.columns && startCol >= 0) {
+                        /* Check ob Feld bereits mine ist, wenn ja ueberspringen */
+                        if (DEBUG_OUTPUT == 1) { printf(" - checked"); }
+                        if (sichtbar.field[startRow][startCol] != 32) {
                             /* Funktion wird fuer die aktuelle Position nur erneut aufgerufen wenn */
                             /* entweder REVEAL_ADJACENT_OTHER 1 ist oder wenn es 0 ist (ausgeschaltet UND */
                             /* die aktuelle Position eine 0 ist. */
-                            if (REVEAL_ADJACENT_OTHER == 0 && minenfeld[startRow][startCol] == 48 || REVEAL_ADJACENT_OTHER == 1)
-                            reveal_sichtbaresFeld(array, minenfeld, rows, cols, startRow, startCol);
+                            if (REVEAL_ADJACENT_OTHER == 0 && minenfeld.field[startRow][startCol] == 48 || REVEAL_ADJACENT_OTHER == 1)
+                            reveal_sichtbaresFeld(sichtbar, minenfeld, startRow, startCol);
                         }
+                    }
                 }
             }
         }
-    }
     }
 }

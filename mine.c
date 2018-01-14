@@ -31,46 +31,50 @@ int main(int argc, char *argv[]) {
 
     _Bool GameOver = 0;
     _Bool redrawScreen = 1;
-    int rows, cols, mines, i;
-    int **sichtbaresFeld;
-    int **minenFeld;
+    int i;
+
+    Minefield sichtbaresFeld;
+    sichtbaresFeld.rows = atoi(argv[1]);
+    sichtbaresFeld.columns = atoi(argv[2]);
+    sichtbaresFeld.mines = 0;
+
+    Minefield minenFeld;
+    minenFeld.rows = sichtbaresFeld.rows;
+    minenFeld.columns = sichtbaresFeld.columns;
+    minenFeld.mines = atoi(argv[3]);
 
     srand(time(NULL)); /* only needed for the shitty RNG, maybe replace later */
 
-    rows = atoi(argv[1]);
-    cols = atoi(argv[2]);
-    mines = atoi(argv[3]);
-
     Cursor cursor;
-    cursor.x = cols / 2 + 1;
-    cursor.y = rows / 2;
+    cursor.x = sichtbaresFeld.columns / 2 + 1;
+    cursor.y = sichtbaresFeld.rows / 2;
 
     init_keyboard();
 
     /* allocate the arrays */
-    sichtbaresFeld = malloc(rows * sizeof *sichtbaresFeld);
-    for (i = 0; i < rows; i++) {
-        sichtbaresFeld[i] = malloc(cols * sizeof *sichtbaresFeld[i]);
+    sichtbaresFeld.field = malloc(sichtbaresFeld.rows * sizeof *sichtbaresFeld.field);
+    for (i = 0; i < sichtbaresFeld.rows; i++) {
+        sichtbaresFeld.field[i] = malloc(sichtbaresFeld.columns * sizeof *sichtbaresFeld.field[i]);
     }
 
-    minenFeld = malloc(rows * sizeof *minenFeld);
-    for (i = 0; i < rows; i++) {
-        minenFeld[i] = malloc(cols * sizeof *minenFeld[i]);
+    minenFeld.field = malloc(minenFeld.rows * sizeof *minenFeld.field);
+    for (i = 0; i < minenFeld.rows; i++) {
+        minenFeld.field[i] = malloc(minenFeld.columns * sizeof *minenFeld.field[i]);
     }
 
     /* use the array */
-    populate_matrix(sichtbaresFeld, rows, cols, 0);
-    populate_matrix(minenFeld, rows, cols, mines);
+    populate_matrix(sichtbaresFeld);
+    populate_matrix(minenFeld);
 
     while (GameOver == 0) {
         /* clears the screen */
         if (redrawScreen == 1) {
             printf("%c[2J", 27);
             /* print the array */
-            print_matrix(sichtbaresFeld, rows, cols);
+            print_matrix(sichtbaresFeld);
             if (argc > 4) {
                 printf("Minenfeld:\n");
-                print_matrix(minenFeld, rows, cols);
+                print_matrix(minenFeld);
             }
             printf("\nCursor:\nx: %d\ny: %d", cursor.x, cursor.y);
         }
@@ -101,7 +105,7 @@ int main(int argc, char *argv[]) {
                 } else if (check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1) != 48) {
                     change_matrix(sichtbaresFeld, cursor.y - 1, cursor.x - 1, check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1));
                 } else {
-                    reveal_sichtbaresFeld(sichtbaresFeld, minenFeld, rows, cols, cursor.y - 1, cursor.x - 1);
+                    reveal_sichtbaresFeld(sichtbaresFeld, minenFeld, cursor.y - 1, cursor.x - 1);
                 }
                 redrawScreen = 1;
             } else {
@@ -111,21 +115,21 @@ int main(int argc, char *argv[]) {
 
     /* clears the screen */
     printf("%c[2J", 27);
-    print_matrix(minenFeld, rows, cols);
+    print_matrix(minenFeld);
     printf("GAME OVER! You hit a mine!\n");
 
     close_keyboard();
 
     /* deallocate the array */
-    for (i = 0; i < rows; i++) {
-        free(sichtbaresFeld[i]);
+    for (i = 0; i < sichtbaresFeld.rows; i++) {
+        free(sichtbaresFeld.field[i]);
     }
-    free(sichtbaresFeld);
+    free(sichtbaresFeld.field);
 
-    for (i = 0; i < rows; i++) {
-        free(minenFeld[i]);
+    for (i = 0; i < minenFeld.rows; i++) {
+        free(minenFeld.field[i]);
     }
-    free(minenFeld);
+    free(minenFeld.field);
 }
 
 void move_Cursor(int row, int col) {

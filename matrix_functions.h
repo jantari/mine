@@ -1,6 +1,15 @@
+typedef struct Minefield {
+        unsigned int rows;
+        unsigned int columns;
+        unsigned int mines;
+        int **field;
+
+    } Minefield;
+
 int get_int_len (int value);
-void populate_matrix(int** array, int rows, int cols, int mines);
-void print_matrix(int** array, int rows, int cols);
-void change_matrix(int** array, int change_row, int change_col, int newValue);
-int check_matrixField(int** array, int row, int col);
-void reveal_sichtbaresFeld(int** array, int** minenfeld, int rows, int cols, int x, int y);
+void populate_matrix(Minefield m);
+void print_matrix(Minefield m);
+void print_matrix_with_border(Minefield m);
+void change_matrix(Minefield m, int change_row, int change_col, int newValue);
+int check_matrixField(Minefield m, int row, int col);
+void reveal_sichtbaresFeld(Minefield sichtbar, Minefield minenfeld, int x, int y);
