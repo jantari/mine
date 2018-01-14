@@ -1,3 +1,7 @@
+/********************************************************
+* credit to http://linux-sxs.org/programming/kbhit.html *
+*********************************************************/
+
 #include "kbhit.h"
 #include <termios.h>
 #include <unistd.h>   // for read()
