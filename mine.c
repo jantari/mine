@@ -3,7 +3,6 @@
 #include<time.h>
 
 #include "matrix_functions.h"
-#include "keyboard_input.h"
 
 #ifdef linux
 #include "kbhit.h"
