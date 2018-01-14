@@ -49,7 +49,9 @@ int main(int argc, char *argv[]) {
     cursor.x = sichtbaresFeld.columns / 2 + 1;
     cursor.y = sichtbaresFeld.rows / 2;
 
+    #ifdef linux
     init_keyboard();
+    #endif
 
     /* allocate the arrays */
     sichtbaresFeld.field = malloc(sichtbaresFeld.rows * sizeof *sichtbaresFeld.field);
@@ -118,8 +120,10 @@ int main(int argc, char *argv[]) {
     print_matrix(minenFeld);
     printf("GAME OVER! You hit a mine!\n");
 
+    #ifdef linux
     close_keyboard();
-
+    #endif
+    
     /* deallocate the array */
     for (i = 0; i < sichtbaresFeld.rows; i++) {
         free(sichtbaresFeld.field[i]);
