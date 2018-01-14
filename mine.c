@@ -22,6 +22,8 @@ typedef struct Cursor {
 
     } Cursor;
 
+void move_Cursor(int row, int col);
+
 int main(int argc, char *argv[]) {
     if (argc < 4) {
         printf("TOO FEW ARGUMENTS!\nSyntax: mine rows columns mines\nexample: mine 8 8 4\n");
@@ -125,4 +127,8 @@ int main(int argc, char *argv[]) {
         free(minenFeld[i]);
     }
     free(minenFeld);
+}
+
+void move_Cursor(int row, int col) {
+    printf("%c[%d;%dH", 27, row, col - 1);
 }
