@@ -4,7 +4,14 @@
 
 #include "matrix_functions.h"
 #include "keyboard_input.h"
+
+#ifdef linux
 #include "kbhit.h"
+#endif
+
+#ifdef _WIN32
+#include<conio.h>
+#endif
 
 #define DARSTELLUNG_MINE 77 /* Der char "M" */
 #define DARSTELLUNG_LEER 48 /* Der char "0" */
