@@ -78,7 +78,6 @@ int main(int argc, char *argv[]) {
                 printf("Minenfeld:\n");
                 print_matrix(minenFeld);
             }
-            printf("\nCursor:\nx: %d\ny: %d", cursor.x, cursor.y);
         }
         redrawScreen = 0;
 
@@ -117,7 +116,8 @@ int main(int argc, char *argv[]) {
 
     /* clears the screen */
     printf("%c[2J", 27);
-    print_matrix(minenFeld);
+    reveal_all_mines(sichtbaresFeld, minenFeld);
+    print_matrix(sichtbaresFeld);
     printf("GAME OVER! You hit a mine!\n");
 
     #ifdef linux

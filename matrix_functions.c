@@ -130,3 +130,15 @@ void reveal_sichtbaresFeld(Minefield sichtbar, Minefield minenfeld, int x, int y
         }
     }
 }
+
+void reveal_all_mines(Minefield sichtbar, Minefield minenfeld) {
+    int i = 0, j = 0;
+
+    for (i = 0; i < minenfeld.rows; i++) {
+        for (j = 0; j < minenfeld.columns; j++) {
+            if (minenfeld.field[i][j] == DARSTELLUNG_MINE) {
+                sichtbar.field[i][j] = DARSTELLUNG_MINE;
+            }
+        }
+    }
+}
