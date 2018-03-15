@@ -23,10 +23,10 @@ int main(int argc, char *argv[]) {
     }
 
     unsigned short int GameState = 1;
-    // 0 lost
-    // 1 ongoing
-    // 2 won
-    // 3 user quit
+    /* GameState: 0 lost
+                  1 ongoing
+                  2 won
+                  3 user quit */
     _Bool redrawScreen = 1;
     int i;
     srand(time(NULL)); /* only needed for the shitty RNG, maybe replace later */
@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
                 printf("Minenfeld:\n");
                 print_matrix(minefield, minefield.field);
             }
+            redrawScreen = 0;
         }
-        redrawScreen = 0;
 
         /* place cursor after drawing playing field */
         move_Cursor(cursor.y, cursor.x * 2);
