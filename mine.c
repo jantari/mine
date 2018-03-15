@@ -13,7 +13,6 @@
 #endif
 
 #define DARSTELLUNG_MINE 77 /* Der char "M" */
-#define DARSTELLUNG_LEER 48 /* Der char "0" */
 
 typedef struct Cursor {
         unsigned short int x;
@@ -32,51 +31,40 @@ int main(int argc, char *argv[]) {
     _Bool GameOver = 0;
     _Bool redrawScreen = 1;
     int i;
-
-    Minefield sichtbaresFeld;
-    sichtbaresFeld.rows = atoi(argv[1]);
-    sichtbaresFeld.columns = atoi(argv[2]);
-    sichtbaresFeld.mines = 0;
-
-    Minefield minenFeld;
-    minenFeld.rows = sichtbaresFeld.rows;
-    minenFeld.columns = sichtbaresFeld.columns;
-    minenFeld.mines = atoi(argv[3]);
-
     srand(time(NULL)); /* only needed for the shitty RNG, maybe replace later */
 
+    Minefield minefield;
+    minefield.rows = atoi(argv[1]);
+    minefield.columns = atoi(argv[2]);
+    minefield.mines = atoi(argv[3]);
+    /* allocate the arrays */
+    minefield.field = malloc(minefield.rows * sizeof *minefield.field);
+    minefield.mask = malloc(minefield.rows * sizeof *minefield.mask);
+    for (i = 0; i < minefield.rows; i++) {
+        minefield.mask[i] = malloc(minefield.columns * sizeof *minefield.mask[i]);
+        minefield.field[i] = malloc(minefield.columns * sizeof *minefield.field[i]);
+    }
+
     Cursor cursor;
-    cursor.x = sichtbaresFeld.columns / 2 + 1;
-    cursor.y = sichtbaresFeld.rows / 2;
+    cursor.x = minefield.columns / 2 + 1;
+    cursor.y = minefield.rows / 2;
+
+    /* use the array */
+    populate_matrix(minefield);
 
     #ifdef linux
     init_keyboard();
     #endif
-
-    /* allocate the arrays */
-    sichtbaresFeld.field = malloc(sichtbaresFeld.rows * sizeof *sichtbaresFeld.field);
-    for (i = 0; i < sichtbaresFeld.rows; i++) {
-        sichtbaresFeld.field[i] = malloc(sichtbaresFeld.columns * sizeof *sichtbaresFeld.field[i]);
-    }
-
-    minenFeld.field = malloc(minenFeld.rows * sizeof *minenFeld.field);
-    for (i = 0; i < minenFeld.rows; i++) {
-        minenFeld.field[i] = malloc(minenFeld.columns * sizeof *minenFeld.field[i]);
-    }
-
-    /* use the array */
-    populate_matrix(sichtbaresFeld);
-    populate_matrix(minenFeld);
 
     while (GameOver == 0) {
         /* clears the screen */
         if (redrawScreen == 1) {
             printf("%c[2J", 27);
             /* print the array */
-            print_matrix(sichtbaresFeld);
+            print_matrix(minefield, minefield.mask);
             if (argc > 4) {
                 printf("Minenfeld:\n");
-                print_matrix(minenFeld);
+                print_matrix(minefield, minefield.field);
             }
         }
         redrawScreen = 0;
@@ -92,21 +80,19 @@ int main(int argc, char *argv[]) {
             if (c == 27 && getchar() == 91) {
                 c = getchar();
                 switch (c) {
-                    case 65: cursor.y--; break;
-                    case 66: cursor.y++; break;
-                    case 67: cursor.x++; break;
-                    case 68: cursor.x--; break;
+                    case 65: if (cursor.y > 1) cursor.y--; break;
+                    case 66: if (cursor.y < minefield.rows) cursor.y++; break;
+                    case 67: if (cursor.x < minefield.columns) cursor.x++; break;
+                    case 68: if (cursor.x > 1) cursor.x--; break;
                     default: printf("FEHLEINGABE !\n"); break;
                 }
             } else if (c == 32) {
-                if (check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1) == DARSTELLUNG_MINE) {
+                if (check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1) == DARSTELLUNG_MINE) {
                     GameOver = 1;
-                } else if (check_matrixField(sichtbaresFeld, cursor.y - 1, cursor.x - 1) != DARSTELLUNG_LEER) {
-                    printf("You've already checked this field!");
-                } else if (check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1) != 48) {
-                    change_matrix(sichtbaresFeld, cursor.y - 1, cursor.x - 1, check_matrixField(minenFeld, cursor.y - 1, cursor.x - 1));
+                } else if (check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1) != 48) {
+                    change_matrix(&minefield.mask[cursor.y - 1][cursor.x - 1], check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1));
                 } else {
-                    reveal_sichtbaresFeld(sichtbaresFeld, minenFeld, cursor.y - 1, cursor.x - 1);
+                    reveal_minefield(minefield, cursor.y - 1, cursor.x - 1);
                 }
                 redrawScreen = 1;
             } else {
@@ -116,8 +102,8 @@ int main(int argc, char *argv[]) {
 
     /* clears the screen */
     printf("%c[2J", 27);
-    reveal_all_mines(sichtbaresFeld, minenFeld);
-    print_matrix(sichtbaresFeld);
+    reveal_all_mines(minefield);
+    print_matrix(minefield, minefield.mask);
     printf("GAME OVER! You hit a mine!\n");
 
     #ifdef linux
@@ -125,15 +111,12 @@ int main(int argc, char *argv[]) {
     #endif
     
     /* deallocate the array */
-    for (i = 0; i < sichtbaresFeld.rows; i++) {
-        free(sichtbaresFeld.field[i]);
+    for (i = 0; i < minefield.rows; i++) {
+        free(minefield.field[i]);
+        free(minefield.mask[i]);
     }
-    free(sichtbaresFeld.field);
-
-    for (i = 0; i < minenFeld.rows; i++) {
-        free(minenFeld.field[i]);
-    }
-    free(minenFeld.field);
+    free(minefield.field);
+    free(minefield.mask);
 }
 
 void move_Cursor(int row, int col) {
