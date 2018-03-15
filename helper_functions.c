@@ -1,13 +1,16 @@
-#include<stdio.h>
-#include<stdlib.h>  /* only needed for RAND */
-#include<time.h> /* only needed for the shitty RNG, maybe replace later */
-#include "matrix_functions.h"
+#include <stdio.h>
+#include <stdlib.h>  /* only needed for RAND */
+#include <time.h> /* only needed for the shitty RNG, maybe replace later */
+#include "helper_functions.h"
 
 #define DARSTELLUNG_MINE 77 /* Der char "M" */
-/* #define DARSTELLUNG_LEER 48  Der char "0" */
 #define REVEAL_ADJACENT_ZEROS 1
 #define REVEAL_ADJACENT_OTHER 1
 #define DEBUG_OUTPUT 0
+
+void move_Cursor(int row, int col) {
+    printf("\x1b[%d;%dH", row, col - 1);
+}
 
 int get_int_len (int value){
     int len = 1;
@@ -57,7 +60,7 @@ void print_matrix(Minefield m, int** field) {
     for (int i = 0; i < m.rows; i++) {
         for (int j = 0; j < m.columns; j++) {
             if (field[i][j] == 77) {
-                printf("%c[31m%c%c[0m ", 27, field[i][j], 27);
+                printf("\x1b[31m%c\x1b[0m ", field[i][j]);
             } else if (field[i][j] == 48) {
                 printf("+ ");
             } else {

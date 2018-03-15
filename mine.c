@@ -1,26 +1,20 @@
-#include<stdlib.h>
-#include<stdio.h>
-#include<time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
-#include "matrix_functions.h"
+#include "helper_functions.h"
 
 #ifdef linux
 #include "kbhit.h"
 #endif
 
 #ifdef _WIN32
-#include<conio.h>
+#include <conio.h>
 #endif
 
 #define DARSTELLUNG_MINE 77 /* Der char "M" */
 
-typedef struct Cursor {
-        unsigned short int x;
-        unsigned short int y;
-
-    } Cursor;
-
-void move_Cursor(int row, int col);
+void quit_game(void);
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
@@ -28,7 +22,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    _Bool GameOver = 0;
+    unsigned short int GameState = 1;
+    // 0 lost
+    // 1 ongoing
+    // 2 won
+    // 3 user quit
     _Bool redrawScreen = 1;
     int i;
     srand(time(NULL)); /* only needed for the shitty RNG, maybe replace later */
@@ -56,10 +54,10 @@ int main(int argc, char *argv[]) {
     init_keyboard();
     #endif
 
-    while (GameOver == 0) {
+    while (GameState == 1) {
         /* clears the screen */
         if (redrawScreen == 1) {
-            printf("%c[2J", 27);
+            printf("\x1b[2J");
             /* print the array */
             print_matrix(minefield, minefield.mask);
             if (argc > 4) {
@@ -72,53 +70,51 @@ int main(int argc, char *argv[]) {
         /* place cursor after drawing playing field */
         move_Cursor(cursor.y, cursor.x * 2);
 
-        /*while (1) { */
-            char c = 0;
-            int countToThree = 0;
-
-            c = getchar();
-            if (c == 27 && getchar() == 91) {
-                c = getchar();
-                switch (c) {
-                    case 65: if (cursor.y > 1) cursor.y--; break;
-                    case 66: if (cursor.y < minefield.rows) cursor.y++; break;
-                    case 67: if (cursor.x < minefield.columns) cursor.x++; break;
-                    case 68: if (cursor.x > 1) cursor.x--; break;
-                    default: printf("FEHLEINGABE !\n"); break;
+        char c = getchar();
+        switch (c) {
+            case 27: /* user pressed special key */
+                if (getchar() == 91) {
+                    c = getchar();
+                    switch (c) {
+                        case 65: if (cursor.y > 1) cursor.y--; break;
+                        case 66: if (cursor.y < minefield.rows) cursor.y++; break;
+                        case 67: if (cursor.x < minefield.columns) cursor.x++; break;
+                        case 68: if (cursor.x > 1) cursor.x--; break;
+                        default: printf("FEHLEINGABE !\n"); break;
+                    }
                 }
-            } else if (c == 32) {
-                if (check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1) == DARSTELLUNG_MINE) {
-                    GameOver = 1;
-                } else if (check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1) != 48) {
-                    change_matrix(&minefield.mask[cursor.y - 1][cursor.x - 1], check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1));
-                } else {
-                    reveal_minefield(minefield, cursor.y - 1, cursor.x - 1);
+                break;
+            case 32: /* user pressed spacebar */
+                switch (check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)) {
+                    case DARSTELLUNG_MINE: GameState = 0; break;
+                    case 48: reveal_minefield(minefield, cursor.y - 1, cursor.x - 1); break;
+                    default: change_matrix(&minefield.mask[cursor.y - 1][cursor.x - 1], check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)); break;
                 }
                 redrawScreen = 1;
-            } else {
-                printf("FEHLEINGABE !\n");
-            }
+                break;
+            case 113: /* user pressed 'q' */
+                GameState = 3;
+        }
     }
 
     /* clears the screen */
-    printf("%c[2J", 27);
-    reveal_all_mines(minefield);
-    print_matrix(minefield, minefield.mask);
-    printf("GAME OVER! You hit a mine!\n");
+    printf("\x1b[2J");
+
+    if (GameState == 0) {
+        reveal_all_mines(minefield);
+        print_matrix(minefield, minefield.mask);
+        printf("GAME OVER! You hit a mine!\n");
+    }
 
     #ifdef linux
     close_keyboard();
     #endif
-    
+
     /* deallocate the array */
-    for (i = 0; i < minefield.rows; i++) {
+    for (int i = 0; i < minefield.rows; i++) {
         free(minefield.field[i]);
         free(minefield.mask[i]);
     }
     free(minefield.field);
     free(minefield.mask);
-}
-
-void move_Cursor(int row, int col) {
-    printf("%c[%d;%dH", 27, row, col - 1);
 }

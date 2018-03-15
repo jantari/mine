@@ -1,12 +1,19 @@
 typedef struct Minefield {
-        unsigned int rows;
-        unsigned int columns;
-        unsigned int mines;
-        int **field;
-        int **mask;
+    unsigned int rows;
+    unsigned int columns;
+    unsigned int mines;
+    int **field;
+    int **mask;
 
-    } Minefield;
+} Minefield;
 
+typedef struct Cursor {
+    unsigned short int x;
+    unsigned short int y;
+
+} Cursor;
+
+void move_Cursor(int row, int col);
 int get_int_len (int value);
 void populate_matrix(Minefield m);
 void print_matrix(Minefield m, int** field);
