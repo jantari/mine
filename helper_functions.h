@@ -21,4 +21,5 @@ void print_matrix_with_border(Minefield m);
 void change_matrix(int* m, int newValue);
 int check_matrixField(int** m, int row, int col);
 void reveal_minefield(Minefield m, int x, int y);
+_Bool check_if_won(Minefield m);
 void reveal_all_mines(Minefield m);

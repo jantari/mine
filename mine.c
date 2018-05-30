@@ -58,6 +58,8 @@ int main(int argc, char *argv[]) {
         /* clears the screen */
         if (redrawScreen == 1) {
             printf("\x1b[2J");
+            /* moves cursor to 0:0 coordinates before redrawing to fix positioning bug with urxvt */
+            move_Cursor(0, 0);
             /* print the array */
             print_matrix(minefield, minefield.mask);
             if (argc > 4) {
@@ -90,6 +92,9 @@ int main(int argc, char *argv[]) {
                     case 48: reveal_minefield(minefield, cursor.y - 1, cursor.x - 1); break;
                     default: change_matrix(&minefield.mask[cursor.y - 1][cursor.x - 1], check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)); break;
                 }
+                if (check_if_won(minefield) == 1) {
+                    GameState = 2;
+                }
                 redrawScreen = 1;
                 break;
             case 113: /* user pressed 'q' */
@@ -99,12 +104,14 @@ int main(int argc, char *argv[]) {
 
     /* clears the screen */
     printf("\x1b[2J");
+    
+    /* moves cursor to 0:0 coordinates before redrawing to fix positioning bug with urxvt */
+    move_Cursor(0, 0);
 
-    if (GameState == 0) {
-        reveal_all_mines(minefield);
-        print_matrix(minefield, minefield.mask);
-        printf("GAME OVER! You hit a mine!\n");
-    }
+    reveal_all_mines(minefield);
+    print_matrix(minefield, minefield.mask);
+    /* the following code neccessitates that GameState 0 means lost and any positive number means won */
+    printf("%s", GameState ? "YOU WON! All non-mine fields revealed!\n" : "GAME OVER! You hit a mine!\n" );
 
     #ifdef linux
     close_keyboard();

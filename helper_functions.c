@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>  /* only needed for RAND */
+#include <stdlib.h> /* only needed for RAND */
 #include <time.h> /* only needed for the shitty RNG, maybe replace later */
 #include "helper_functions.h"
 
@@ -21,7 +21,6 @@ int get_int_len (int value){
     return len;
 }
 
-/* Syntax: populate_matrix(matrixHier, anzahlReihen, anzahlSpalten, anzahlMinen) */
 void populate_matrix(Minefield m) {
     int i, j;
 
@@ -39,7 +38,7 @@ void populate_matrix(Minefield m) {
         /* printf("Cell randomly selected: X: %d Y: %d\n", randomRow, randomCol); */
         if (m.field[randomRow][randomCol] != DARSTELLUNG_MINE) {
             m.field[randomRow][randomCol] = DARSTELLUNG_MINE;
-            /* Zahlen hinzufuegen wieviele Minen in der naehe sind */
+            /* Zahlen ins Feld einfuegen wieviele Minen in der Naehe sind */
             for (int startRow = randomRow - 1; startRow <= randomRow + 1; startRow++) {
                 for (int startCol = randomCol - 1; startCol <= randomCol + 1; startCol++) {
                     /* Check ob der Bereich noch im Spielfeld ist (falls Mine am Rand ist) */
@@ -131,6 +130,19 @@ void reveal_minefield(Minefield m, int x, int y) {
             }
         }
     }
+}
+
+/* returns 0 (false) if an unrevealed field that's not a mine is found in the mask */
+/* and 1 (true) if all non-mine fields have been uncovered by the player */
+_Bool check_if_won(Minefield m) {
+    for (int currentRow = 0; currentRow < m.rows; currentRow++) {
+        for (int currentColumn = 0; currentColumn < m.columns; currentColumn++) {
+            if(m.mask[currentRow][currentColumn] == 48 && m.field[currentRow][currentColumn] != DARSTELLUNG_MINE) {
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
 void reveal_all_mines(Minefield m) {
