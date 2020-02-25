@@ -58,7 +58,7 @@ void populate_matrix(Minefield m) {
 void print_matrix(Minefield m, int** field) {
     for (int i = 0; i < m.rows; i++) {
         for (int j = 0; j < m.columns; j++) {
-            if (field[i][j] == 77) {
+            if (field[i][j] == DARSTELLUNG_MINE) {
                 printf("\x1b[31m%c\x1b[0m ", field[i][j]);
             } else if (field[i][j] == 48) {
                 printf("+ ");

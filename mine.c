@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
         /* clears the screen */
         if (redrawScreen == 1) {
             printf("\x1b[2J");
-            /* moves cursor to 0:0 coordinates before redrawing to fix positioning bug with urxvt */
-            move_Cursor(0, 0);
+            /* moves cursor to 1:1 coordinates before redrawing to fix positioning bug with urxvt */
+            move_Cursor(1, 1);
             /* print the array */
             print_matrix(minefield, minefield.mask);
             if (argc > 4) {
@@ -105,8 +105,8 @@ int main(int argc, char *argv[]) {
     /* clears the screen */
     printf("\x1b[2J");
     
-    /* moves cursor to 0:0 coordinates before redrawing to fix positioning bug with urxvt */
-    move_Cursor(0, 0);
+    /* moves cursor to 1:1 coordinates before redrawing to fix positioning bug with urxvt */
+    move_Cursor(1, 1);
 
     reveal_all_mines(minefield);
     print_matrix(minefield, minefield.mask);
