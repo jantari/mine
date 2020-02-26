@@ -18,15 +18,11 @@ void quit_game(void);
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
-        printf("TOO FEW ARGUMENTS!\nSyntax: mine rows columns mines\nexample: mine 8 8 4\n");
+        printf("TOO FEW ARGUMENTS!\nSyntax: mine rows columns mines\nexample: mine 10 10 8\n");
         return 1;
     }
 
-    unsigned short int GameState = 1;
-    /* GameState: 0 lost
-                  1 ongoing
-                  2 won
-                  3 user quit */
+    enum { LOST, ONGOING, WON, QUIT } GameState = 1;
     _Bool redrawScreen = 1;
     int i;
     srand(time(NULL)); /* only needed for the shitty RNG, maybe replace later */
@@ -123,14 +119,14 @@ int main(int argc, char *argv[]) {
 
     /* clears the screen */
     printf("\x1b[2J");
-    
+
     /* moves cursor to 1:1 coordinates before redrawing to fix positioning bug with urxvt */
     move_Cursor(1, 1);
 
     reveal_all_mines(minefield);
     print_matrix(minefield, minefield.mask);
     /* the following code neccessitates that GameState 0 means lost and any positive number means won */
-    printf("%s", GameState ? "YOU WON! All non-mine fields revealed!\n" : "GAME OVER! You hit a mine!\n" );
+    puts(GameState ? "YOU WON! All non-mine fields revealed!" : "GAME OVER! You hit a mine!");
 
     #ifdef linux
     close_keyboard();

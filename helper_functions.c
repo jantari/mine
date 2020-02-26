@@ -52,7 +52,7 @@ void populate_matrix(Minefield m) {
             }
             minesPlaced++;
         }
-    }   
+    }
 }
 
 void print_matrix(Minefield m, int** field) {
