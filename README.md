@@ -1,9 +1,16 @@
 # mine
 
-text-based Minesweeper in C
+Text-based Minesweeper in C.
 
-compile with `gcc -o mine mine.c helper_functions.c kbhit.c`
+Compile with:
 
-(currently compiles but doesn't work under Windows)
+```
+# On Linux:
+gcc -o mine mine.c helper_functions.c kbhit.c`
 
-Use arrow keys to move cursor, spacebar to reveal tile.
+# On Windows:
+gcc -o mine mine.c helper_functions.c`
+```
+
+Use arrow keys to move cursor, spacebar to reveal atile and 'q' to give up.
+

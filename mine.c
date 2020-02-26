@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
         /* place cursor after drawing playing field */
         move_Cursor(cursor.y, cursor.x * 2);
 
+        #ifdef linux
         char c = getchar();
         switch (c) {
             case 27: /* user pressed special key */
@@ -86,6 +87,24 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 break;
+        #endif
+        #ifdef _WIN32
+        char c = getch();
+        switch (c) {
+            case 0:
+                switch (getch()) {
+                    // Up
+                    case 72: if (cursor.y > 1) cursor.y--; break;
+                    // Down
+                    case 80: if (cursor.y < minefield.rows) cursor.y++; break;
+                    // Right
+                    case 77: if (cursor.x < minefield.columns) cursor.x++; break;
+                    // Left
+                    case 75: if (cursor.x > 1) cursor.x--; break;
+                    default: printf("FEHLEINGABE !\n"); break;
+                }
+                break;
+        #endif
             case 32: /* user pressed spacebar */
                 switch (check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)) {
                     case DARSTELLUNG_MINE: GameState = 0; break;
