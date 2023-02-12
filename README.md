@@ -12,5 +12,4 @@ gcc -o mine mine.c helper_functions.c kbhit.c
 gcc -o mine.exe mine.c helper_functions.c
 ```
 
-Use arrow keys to move cursor, spacebar to reveal atile and 'q' to give up.
-
+Use arrow keys to move cursor, spacebar to reveal a tile and 'q' to give up.

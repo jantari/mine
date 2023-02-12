@@ -35,7 +35,6 @@ void populate_matrix(Minefield m) {
     for (int minesPlaced = 0; minesPlaced < m.mines;) {
         int randomRow = rand() % m.rows;
         int randomCol = rand() % m.columns;
-        /* printf("Cell randomly selected: X: %d Y: %d\n", randomRow, randomCol); */
         if (m.field[randomRow][randomCol] != DARSTELLUNG_MINE) {
             m.field[randomRow][randomCol] = DARSTELLUNG_MINE;
             /* Zahlen ins Feld einfuegen wieviele Minen in der Naehe sind */
@@ -70,40 +69,15 @@ void print_matrix(Minefield m, int** field) {
     }
 }
 
-/* UNUSED NOW */
-void print_matrix_with_border(Minefield m) {
-    printf("    ");
-    for (int i = 0; i < m.columns; i++) {
-        printf("_%c[4m%d%c[0m", 27, i, 27);
-    }
-    printf("_\n");
-    for (int i = 0; i < m.rows; i++) {
-        for (int padding = 0; padding + get_int_len(i) < get_int_len(m.rows); padding++) {
-            printf(" ");
-        }
-        printf("%d | ", i);
-        for (int j = 0; j < m.columns; j++) {
-            if (m.field[i][j] == 77) {
-                printf("%c[31m%c%c[0m ", 27, m.field[i][j], 27);
-            } else if (m.field[i][j] == 48) {
-                printf("+ ");
-            } else {
-                printf("%c ", m.field[i][j]);
-            }
-        }
-        printf("|\n");
-    }
-}
-
-void change_matrix(int *m, int newValue) {
+void set_matrixField(int *m, int newValue) {
     *m = newValue;
 }
 
-int check_matrixField(int** m, int row, int col) {
+int get_matrixField(int** m, int row, int col) {
     return m[row][col];
 }
 
-void reveal_minefield(Minefield m, int x, int y) {
+void reveal_mineField(Minefield m, int x, int y) {
     if (m.field[x][y] != 48) {
         m.mask[x][y] = m.field[x][y];
     } else {

@@ -102,10 +102,10 @@ int main(int argc, char *argv[]) {
                 break;
         #endif
             case 32: /* user pressed spacebar */
-                switch (check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)) {
+                switch (get_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)) {
                     case DARSTELLUNG_MINE: GameState = 0; break;
                     case 48: reveal_minefield(minefield, cursor.y - 1, cursor.x - 1); break;
-                    default: change_matrix(&minefield.mask[cursor.y - 1][cursor.x - 1], check_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)); break;
+                    default: set_matrixField(&minefield.mask[cursor.y - 1][cursor.x - 1], get_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)); break;
                 }
                 if (check_if_won(minefield) == 1) {
                     GameState = 2;
