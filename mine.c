@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
             case 32: /* user pressed spacebar */
                 switch (get_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)) {
                     case DARSTELLUNG_MINE: GameState = 0; break;
-                    case 48: reveal_minefield(minefield, cursor.y - 1, cursor.x - 1); break;
+                    case 48: reveal_mineField(minefield, cursor.y - 1, cursor.x - 1); break;
                     default: set_matrixField(&minefield.mask[cursor.y - 1][cursor.x - 1], get_matrixField(minefield.field, cursor.y - 1, cursor.x - 1)); break;
                 }
                 if (check_if_won(minefield) == 1) {

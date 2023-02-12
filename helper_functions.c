@@ -97,7 +97,7 @@ void reveal_mineField(Minefield m, int x, int y) {
                             /* entweder REVEAL_ADJACENT_OTHER 1 ist oder wenn es 0 ist (ausgeschaltet UND */
                             /* die aktuelle Position eine 0 ist. */
                             if (REVEAL_ADJACENT_OTHER == 0 && m.field[startRow][startCol] == 48 || REVEAL_ADJACENT_OTHER == 1)
-                            reveal_minefield(m, startRow, startCol);
+                            reveal_mineField(m, startRow, startCol);
                         }
                     }
                 }
